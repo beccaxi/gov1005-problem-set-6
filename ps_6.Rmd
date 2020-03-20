@@ -1,0 +1,138 @@
+---
+title: "Problem Set 6"
+author: "Rebecca Xi"
+date: "3/25/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(infer)
+library(tidyverse)
+```
+
+## Question 1: Sampling and Confidence Intervals
+
+```{r 1, echo=FALSE}
+
+# Here I write a function, create_deck(), which creates a deck of cards as a
+# tibble with 52 rows and four columns: suit, value, points and name. (I list
+# the value column first so as to mimic the table in the problem set
+# instructions.) The cards are ordered by suit: diamonds, hearts, clubs, spades,
+# and go from 2 to Ace within each suit. J, Q, K, and A each have a point value
+# of 10, which I set using an ifelse() condition in creating the points column.
+# The name column pastes the value and suit, separated by “of".
+
+create_deck <- function() {
+  tibble(
+    value = rep(c(2:10, "J", "Q", "K", "A"), times = 4),
+    points = ifelse(
+      value == "J" | value == "K" | value == "Q" | value == "A", 
+      10, 
+      value
+    ),
+    suit = rep(c("diamonds", "hearts", "clubs", "spades"), each = 13),
+    name = paste(value, suit, sep = " of ")
+  )
+}
+
+# Here I write a draw_card() function which takes parameters n (how many cards
+# to draw) and report (which column to return). First, the function calls
+# create_deck() to set up the deck of cards, then calls sample_n() to sample n
+# cards from the deck and selects the requested column. I end by calling pull()
+# in order to convert the function output from a column to the desired format.
+
+draw_card <- function(n, report) {
+  create_deck() %>% 
+  sample_n(size = n) %>%
+  select(report) %>% 
+  pull()
+}
+```
+
+### 1A)
+
+```{r 1A, echo=FALSE}
+
+# I first set the seed to 2. I then call my draw_card function with n = 4 and
+# report = “name”.
+
+set.seed(2)
+draw_card(n = 4, report = "name")
+```
+
+
+### 1B)
+
+```{r 1B, echo=FALSE}
+
+# Set the seed to 3. Make a tibble called “hands” that draws a sample (without
+# replacement) of 5 cards, 100 times. Using map_lgl, create a column of your
+# tibble called “face” which tests whether there are any face cards (J, Q, K) in
+# the hand. Print a gt of the first 5 rows of your tibble, which should look
+# like this:
+
+
+```
+
+
+### 1C)
+
+```{r 1C, echo=FALSE}
+
+# Set the seed to 2. Print a call to your draw_card function, where n = 4 and
+# report = “name”.
+
+
+```
+
+
+### 1D)
+
+```{r 1D, echo=FALSE}
+
+# Set the seed to 2. Print a call to your draw_card function, where n = 4 and
+# report = “name”.
+
+
+```
+
+
+### 1E)
+
+```{r 1E, echo=FALSE}
+
+# Set the seed to 2. Print a call to your draw_card function, where n = 4 and
+# report = “name”.
+
+
+```
+
+
+### 1F)
+
+```{r 1F, echo=FALSE}
+
+# Set the seed to 2. Print a call to your draw_card function, where n = 4 and
+# report = “name”.
+
+
+```
+
+
+### 1G)
+
+```{r 1G, echo=FALSE}
+
+# Set the seed to 2. Print a call to your draw_card function, where n = 4 and
+# report = “name”.
+
+
+```
+
+
+
+## Question 2: Shiny
+
+
