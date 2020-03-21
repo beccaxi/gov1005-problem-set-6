@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 library(infer)
+library(gt)
 library(tidyverse)
 ```
 
@@ -51,6 +52,7 @@ draw_card <- function(n, report) {
 }
 ```
 
+
 ### 1A)
 
 ```{r 1A, echo=FALSE}
@@ -67,13 +69,45 @@ draw_card(n = 4, report = "name")
 
 ```{r 1B, echo=FALSE}
 
-# Set the seed to 3. Make a tibble called “hands” that draws a sample (without
-# replacement) of 5 cards, 100 times. Using map_lgl, create a column of your
-# tibble called “face” which tests whether there are any face cards (J, Q, K) in
-# the hand. Print a gt of the first 5 rows of your tibble, which should look
-# like this:
+# Now I set the seed to 3. I create a tibble called “hands” that draws a sample
+# (without replacement) of 5 cards, 100 times. I then use map_lgl to create a
+# column called “face” which tests whether there are any face cards (J, Q, K) in
+# the hand, using an ifelse() condition. (I am sure there are more efficient
+# ways to test for at least one face card within a draw, but here I end up doing
+# it manually by checking each index of the draw.)
 
+set.seed(3)
+hands <- tibble(
+  draw = map(1:100, ~ draw_card(n = 5, report = "value")),
+  face = map_lgl(
+    draw, 
+    ~ ifelse(
+      .[[1]] %in% c("J", "Q", "K") |
+      .[[2]] %in% c("J", "Q", "K") |
+      .[[3]] %in% c("J", "Q", "K") |
+      .[[4]] %in% c("J", "Q", "K") |
+      .[[5]] %in% c("J", "Q", "K"), 
+      TRUE, 
+      FALSE)
+  )
+)
 
+# Finally, I use gt() to display the first 5 rows of the tibble. I slice for the
+# first five rows, and then use the gt package to add a title and subtitle and
+# relabel the columns as appropriate.
+
+fivecards <- hands %>% 
+  slice(1:5) %>% 
+  gt() %>% 
+  tab_header(
+    title = "Hands of Five Cards",
+    subtitle = "Checking for Face Values"
+  ) %>%
+  cols_label(
+    draw = "Draw",
+    face = "Face Cards?"
+  )
+fivecards
 ```
 
 
@@ -81,10 +115,25 @@ draw_card(n = 4, report = "name")
 
 ```{r 1C, echo=FALSE}
 
-# Set the seed to 2. Print a call to your draw_card function, where n = 4 and
-# report = “name”.
+# I first set the seed to 4. Here I draw my own sample of 12 cards, without
+# replacement (which is the default). I then use gt() to display a table of all
+# 12 sampled cards with card name and point value.
 
+set.seed(4)
+deck <- create_deck()
+twelve_cards_once <- draw_card(n = 12, report = "name") %>% 
+  left_join(deck, by = "name") %>% 
+  select(name, points) %>% 
+  gt() %>% 
+  tab_header(
+    title = "Sample of 12 Cards"
+  ) %>% 
+  cols_label(
+    value = "Card Name"
+  )
+twelve_cards_once
 
+'FINISH!!!'
 ```
 
 
@@ -92,30 +141,53 @@ draw_card(n = 4, report = "name")
 
 ```{r 1D, echo=FALSE}
 
-# Set the seed to 2. Print a call to your draw_card function, where n = 4 and
-# report = “name”.
+# I call create_deck() to create the entire deck of cards and then call mean()
+# within summarize() to find the average number of points. I have to first
+# convert the entries in the points column to numeric values, in order to be
+# able to apply the mean() function.
 
-
+r1D <- create_deck() %>%  
+  summarize(mean(as.numeric(points)))
 ```
+
+The mean number of points in our entire deck is `r r1D`.
 
 
 ### 1E)
 
 ```{r 1E, echo=FALSE}
 
-# Set the seed to 2. Print a call to your draw_card function, where n = 4 and
-# report = “name”.
+# Set the seed to 5. Conduct bootstrapped resampling on your hand of 12 cards.
+# That is, sample from your 12 cards, with replace = TRUE, 1,000 times. Store
+# your resamples in a tibble using a map function, and replicate the plot below,
+# which shows the original sample mean and the mean of the bootstrapped
+# resamples. 
 
+set.seed(5)
+bootstrap <- twelve_cards_once %>% 
+  rep_sample_n(size =  , reps = 1000) %>% 
+  select(replicate, name, points) %>%
+  group_by(replicate) %>%
+  summarize(bootstrap_mean = mean(points))
 
+ggplot(bootstrap, aes(bootstrap_mean)) +
+  geom_histogram(bins = 20)
 ```
+In one sentence, tell us why the mean of the bootstrapped resamples isn’t 
+exactly the same as the mean of the original sample.
+
 
 
 ### 1F)
 
 ```{r 1F, echo=FALSE}
 
-# Set the seed to 2. Print a call to your draw_card function, where n = 4 and
-# report = “name”.
+# Using your bootstrapped sampling distribution, create “percentile confidence
+# intervals” at the 80%, 90%, 95%, and 99% confidence levels. If you need a
+# refresher, check out PPBDS 10.2.1. Make a gt table with two columns; one for
+# the level and one for the interval. Include the sample mean (the
+# (non-bootstrapped) mean points for your sample) as a “source note” at the
+# bottom of your table.
 
 
 ```
@@ -134,5 +206,7 @@ draw_card(n = 4, report = "name")
 
 
 ## Question 2: Shiny
+
+[link to Shiny app]
 
 
