@@ -299,15 +299,17 @@ perc_conf_int_table
 # Here I write a function width_ci <- function(n, level) that draws a sample
 # hand of n cards and creates a confidence interval at the appropriate
 # confidence level. I draw from the earlier questions in this problem set to
-# create the function: I first create a full deck, (bootstrap) sample 1000 times
-# with replacement from this deck, group by each sample, and find the mean of
-# each sample. I then pull just the distribution of the bootstrapped sample
-# means and, as above, use the percentile method to calculate the desired
+# create the function: I first create a full deck and take a sample of size n
+# from this deck, then bootstrap sample 1000 times with replacement from this
+# deck using rep_sample_n(). I then group by each bootstrapped sample and find
+# the mean of each sample. I then pull just the distribution of the bootstrapped
+# sample means and, as above, use the percentile method to calculate the desired
 # confidence interval. The final output of the function is the length of the
 # interval, or the difference between the lower and upper bounds.
 
 width_ci <- function(n, level) {
-  int <- create_deck() %>% 
+  sample <- create_deck() %>% 
+    sample_n(size = n) %>% 
     rep_sample_n(size = n, reps = 1000, replace = TRUE) %>% 
     group_by(replicate) %>% 
     select(replicate, name, points) %>% 
@@ -315,7 +317,9 @@ width_ci <- function(n, level) {
     pull(bootstrap_mean) %>% 
     quantile(c((1 - level) / 2, (1 - level) / 2 + level)) %>% 
     round(digits = 1)
-  width = int[[2]] - int[[1]]
+  
+  width = sample[[2]] - sample[[1]]
+  
   width
 }
 
@@ -346,7 +350,18 @@ tibble <- tibble(
 # Finally, I replicate the plot from the problem set instructions using the
 # tibble created above.
 
-
+plot <- tibble %>% 
+  ggplot(aes(x = sample_size, y = width, color = conf_level)) +
+  geom_point() +
+  labs(
+    title = "Width of Bootstrapped Confidence Intervals For Different Sample Sizes",
+    subtitle = "Calculating the Mean Point Value from a Deck of Cards",
+    x = "Sample Size",
+    y = "Width of Confidence Interval\n (Percentile Method)",
+    color = "Confidence Level"
+  ) +
+  theme_classic()
+plot
 ```
 
 
