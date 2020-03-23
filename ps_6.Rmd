@@ -175,22 +175,29 @@ set.seed(5)
 bootstrap <- twelve_cards_once %>% 
   rep_sample_n(size = 12, reps = 1000, replace = TRUE)
 
-# Now I replicate the plot shown in the problem set instructions, which compares
-# the original sample mean to the mean of the bootstrapped resamples. I use
-# summarize() to calculate the mean of the bootstrapped samples, 
+# Now I prepare my bootstrap tibble for replicating the plot shown in the
+# problem set instructions, which compares the original sample mean to the mean
+# of the bootstrapped resamples. Here I group by "replicate" to group each
+# sample together, and then use summarize() to calculate the mean of each of the
+# bootstrapped samples.
 
 bootstrap_mean <- bootstrap %>% 
   group_by(replicate) %>% 
   select(replicate, name, points) %>% 
   summarize(bootstrap_mean = mean(as.numeric(points)))
 
-#
+# Here I calculate the mean of the all bootstrapped sample means found above, in
+# order to visualize the mean of the entire distribution in the plot later on
 
 bootstrap_mean_overall <- bootstrap_mean %>% 
   summarize(bootstrap_mean_overall = mean(bootstrap_mean))
 
-# Here I plot the bootstrap_mean table on the x-axis. It took some playing
-# around to settle on bins = 20, via a lot of help on Zoom.
+# Here I plot my bootstrap_mean tibble, with bootstrapped sample means on the
+# x-axis. It took some playing around to settle on bins = 20, via some help on
+# Zoom. I then use geom_vline() to add the two vertical lines with x-intercepts
+# at the mean of bootstrapped samples and the mean of the entire original deck
+# (as calculated in 1D)). Lastly, I apply theme_classic() to mimic the plot in
+# the problem set instructions.
 
 bootstrap_plot <- bootstrap_mean %>% 
   ggplot(aes(x = bootstrap_mean)) +
@@ -206,19 +213,26 @@ bootstrap_plot <- bootstrap_mean %>%
     color = "lightblue"
   ) +
   geom_text(
-    aes(
-      x = 7.1, 
-      label="Mean of Bootstrapped Samples", 
-      y = 51), 
+    aes(x = 7.1, label = "Mean of Bootstrapped Samples", y = 51), 
     color = "lightblue",
+    angle = 90
+  ) +
+  geom_vline(xintercept = 7.231, color = "pink") +
+  geom_text(
+    aes(x = 7.31, label = "Original Sample Mean", y = 51), 
+    color = "pink",
     angle = 90
   ) +
   theme_classic()
 bootstrap_plot
 ```
 
-In one sentence, tell us why the mean of the bootstrapped resamples isn’t 
-exactly the same as the mean of the original sample. 
+(The mean of the original sample (from 1D) is approximately 7.231, while the 
+mean of the bootstrapped samples as found here is 7.20175.) Even after running 
+1000 samples, the mean of the bootstrapped samples is slightly off due to the 
+fact that the bootstrap samples are created by sampling with replacement, 
+allowing for potentially drawing the same card(s) multiple times and thus 
+skewing the mean.
 
 
 
