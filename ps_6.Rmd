@@ -62,7 +62,7 @@ draw_card <- function(n, report) {
 # report = “name”.
 
 set.seed(2)
-draw_card(n = 4, report = "name")
+print(draw_card(n = 4, report = "name"))
 ```
 
 
@@ -89,7 +89,8 @@ hands <- tibble(
       .[[4]] %in% c("J", "Q", "K") |
       .[[5]] %in% c("J", "Q", "K"), 
       TRUE, 
-      FALSE)
+      FALSE
+    )
   )
 )
 
@@ -119,7 +120,7 @@ fivecards
 # I first set the seed to 4. Here I draw my own sample of 12 cards from the deck
 # created by create_deck() and select just the name and points columns. I
 # decided to directly use sample_n() with size = 12 to draw this sample rather
-# than use the function I created earlier, draw_sample, in order to allow for
+# than use the function I created earlier, draw_sample(), in order to allow for
 # selecting and viewing multiple columns from the deck tibble.
 
 set.seed(4)
@@ -201,29 +202,29 @@ bootstrap_mean_overall <- bootstrap_mean %>%
 
 bootstrap_plot <- bootstrap_mean %>% 
   ggplot(aes(x = bootstrap_mean)) +
-  geom_histogram(bins = 20) +
-  labs(
-    title = "Distribution of 1000 Bootstrapped Resamples",
-    subtitle = "From original 12 card sample with mean 7.231",
-    x = "Points",
-    y = "Samples"
-  ) +
-  geom_vline(
-    xintercept = bootstrap_mean_overall$bootstrap_mean_overall, 
-    color = "lightblue"
-  ) +
-  geom_text(
-    aes(x = 7.1, label = "Mean of Bootstrapped Samples", y = 51), 
-    color = "lightblue",
-    angle = 90
-  ) +
-  geom_vline(xintercept = 7.231, color = "pink") +
-  geom_text(
-    aes(x = 7.31, label = "Original Sample Mean", y = 51), 
-    color = "pink",
-    angle = 90
-  ) +
-  theme_classic()
+    geom_histogram(bins = 20) +
+    labs(
+      title = "Distribution of 1000 Bootstrapped Resamples",
+      subtitle = "From original 12 card sample with mean 7.231",
+      x = "Points",
+      y = "Samples"
+    ) +
+    geom_vline(
+      xintercept = bootstrap_mean_overall$bootstrap_mean_overall, 
+      color = "lightblue"
+    ) +
+    geom_text(
+      aes(x = 7.1, label = "Mean of Bootstrapped Samples", y = 51), 
+      color = "lightblue",
+      angle = 90
+    ) +
+    geom_vline(xintercept = 7.231, color = "pink") +
+    geom_text(
+      aes(x = 7.31, label = "Original Sample Mean", y = 51), 
+      color = "pink",
+      angle = 90
+    ) +
+    theme_classic()
 bootstrap_plot
 ```
 
@@ -248,10 +249,10 @@ skewing the mean.
 
 find_level <- function(level) {
   bootstrap_mean %>% 
-    pull(bootstrap_mean) %>% 
-    quantile(c((1 - level) / 2, (1 - level) / 2 + level)) %>% 
-    round(digits = 1) %>% 
-    rbind()
+  pull(bootstrap_mean) %>% 
+  quantile(c((1 - level) / 2, (1 - level) / 2 + level)) %>% 
+  round(digits = 1) %>% 
+  rbind()
 } 
 
 # Here I create the aforementioned tibble with two columns, one for the
@@ -348,19 +349,23 @@ tibble <- tibble(
   )
 
 # Finally, I replicate the plot from the problem set instructions using the
-# tibble created above.
+# tibble created above. I apply labels and use theme_classic() to mimic the
+# problem set instructions; however, the data points are not identical to the
+# problem set instructions (skewing the y-axis breaks and labels as well), which
+# I have been informed via Piazza is probably a seed issue and should not be
+# addressed.
 
 plot <- tibble %>% 
   ggplot(aes(x = sample_size, y = width, color = conf_level)) +
-  geom_point() +
-  labs(
-    title = "Width of Bootstrapped Confidence Intervals For Different Sample Sizes",
-    subtitle = "Calculating the Mean Point Value from a Deck of Cards",
-    x = "Sample Size",
-    y = "Width of Confidence Interval\n (Percentile Method)",
-    color = "Confidence Level"
-  ) +
-  theme_classic()
+    geom_point() +
+    labs(
+      title = "Width of Bootstrapped Confidence Intervals For Different Sample Sizes",
+      subtitle = "Calculating the Mean Point Value from a Deck of Cards",
+      x = "Sample Size",
+      y = "Width of Confidence Interval\n (Percentile Method)",
+      color = "Confidence Level"
+    ) +
+    theme_classic()
 plot
 
 # Per Question #2, I save this plot in png form as follows. The code is now commented out since the action has already been completed.
@@ -372,6 +377,11 @@ plot
 
 ## Question 2: Shiny
 
-[link to Shiny app]
+https://rebecca-xi.shinyapps.io/ps_6_shiny/
+
+
+
+
+
 
 

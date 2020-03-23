@@ -6,11 +6,11 @@
 
 library(shiny)
 
-# Define UI for application that draws a histogram
+# Define UI for application that displays the plot from 1G
 ui <- fluidPage(
 
     # Application title
-    titlePanel("Plot from 1G)"),
+    titlePanel("Problem Set 6: Question 2: Plot from 1G)"),
 
     # Show a plot of the generated distribution
     mainPanel(
@@ -19,17 +19,16 @@ ui <- fluidPage(
 )
 
 # Define server logic required to send a pre-rendered image with renderImage()
-server <- function(input, output, session) {
+server <- function(input, output) {
     # Send a pre-rendered image, and don't delete the image after sending it
     output$myImage <- renderImage({
-        # When input$n is 3, filename is ./images/image3.jpeg
-        filename <- normalizePath(file.path('./ps_6_shiny/dist_plot.png'))
+        # Call the png file saved within ps_6_shiny
+        filename <- file.path('./dist_plot.png')
         
         # Return a list containing the filename 
         list(src = filename,
-             contentType = 'image/png',
-             width = 400,
-             height = 300)
+             width = 500,
+             height = 500)
         
     }, deleteFile = FALSE)
 }
