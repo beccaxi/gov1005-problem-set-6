@@ -309,7 +309,7 @@ perc_conf_int_table
 
 width_ci <- function(n, level) {
   sample <- create_deck() %>% 
-    sample_n(size = n) %>% 
+    sample_n(size = n, replace = FALSE) %>% 
     rep_sample_n(size = n, reps = 1000, replace = TRUE) %>% 
     group_by(replicate) %>% 
     select(replicate, name, points) %>% 
@@ -362,6 +362,10 @@ plot <- tibble %>%
   ) +
   theme_classic()
 plot
+
+# Per Question #2, I save this plot in png form as follows. The code is now commented out since the action has already been completed.
+
+# ggsave("ps_6_shiny/dist_plot.png")
 ```
 
 
