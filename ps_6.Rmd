@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(infer)
 library(gt)
+library(ggplot2)
 library(tidyverse)
 ```
 
@@ -115,25 +116,32 @@ fivecards
 
 ```{r 1C, echo=FALSE}
 
-# I first set the seed to 4. Here I draw my own sample of 12 cards, without
-# replacement (which is the default). I then use gt() to display a table of all
-# 12 sampled cards with card name and point value.
+# I first set the seed to 4. Here I draw my own sample of 12 cards from the deck
+# created by create_deck() and select just the name and points columns. I
+# decided to directly use sample_n() with size = 12 to draw this sample rather
+# than use the function I created earlier, draw_sample, in order to allow for
+# selecting and viewing multiple columns from the deck tibble.
 
 set.seed(4)
-deck <- create_deck()
-twelve_cards_once <- draw_card(n = 12, report = "name") %>% 
-  left_join(deck, by = "name") %>% 
-  select(name, points) %>% 
+twelve_cards_once <- create_deck() %>% 
+  sample_n(size = 12) %>% 
+  select(name, points)
+
+# Here I use gt() to display a table of all 12 sampled cards with card name and
+# point value. I chose not to pipe directly from the previous code chunk to gt()
+# so that I can successfully draw from twelve_cards_once, as a data frame, in
+# 1E) later on.
+
+twelve_cards_table <- twelve_cards_once %>% 
   gt() %>% 
   tab_header(
     title = "Sample of 12 Cards"
   ) %>% 
   cols_label(
-    value = "Card Name"
+    name = "Card Name",
+    points = "Point Value"
   )
-twelve_cards_once
-
-'FINISH!!!'
+twelve_cards_table
 ```
 
 
@@ -157,24 +165,60 @@ The mean number of points in our entire deck is `r r1D`.
 
 ```{r 1E, echo=FALSE}
 
-# Set the seed to 5. Conduct bootstrapped resampling on your hand of 12 cards.
-# That is, sample from your 12 cards, with replace = TRUE, 1,000 times. Store
-# your resamples in a tibble using a map function, and replicate the plot below,
-# which shows the original sample mean and the mean of the bootstrapped
-# resamples. 
+# I first set the seed to 5. Here I conduct bootstrapped resampling on the hand
+# of 12 cards created in 1C). In sampling 1000 times, I have to sample with
+# replacement so as to not get back the same hand of 12 cards every single time.
+# I chose not to store these resamples in a tibble using map(), since doing so
+# was giving me complications later on when I tried to plot the tibble.
 
 set.seed(5)
 bootstrap <- twelve_cards_once %>% 
-  rep_sample_n(size =  , reps = 1000) %>% 
-  select(replicate, name, points) %>%
-  group_by(replicate) %>%
-  summarize(bootstrap_mean = mean(points))
+  rep_sample_n(size = 12, reps = 1000, replace = TRUE)
 
-ggplot(bootstrap, aes(bootstrap_mean)) +
-  geom_histogram(bins = 20)
+# Now I replicate the plot shown in the problem set instructions, which compares
+# the original sample mean to the mean of the bootstrapped resamples. I use
+# summarize() to calculate the mean of the bootstrapped samples, 
+
+bootstrap_mean <- bootstrap %>% 
+  group_by(replicate) %>% 
+  select(replicate, name, points) %>% 
+  summarize(bootstrap_mean = mean(as.numeric(points)))
+
+#
+
+bootstrap_mean_overall <- bootstrap_mean %>% 
+  summarize(bootstrap_mean_overall = mean(bootstrap_mean))
+
+# Here I plot the bootstrap_mean table on the x-axis. It took some playing
+# around to settle on bins = 20, via a lot of help on Zoom.
+
+bootstrap_plot <- bootstrap_mean %>% 
+  ggplot(aes(x = bootstrap_mean)) +
+  geom_histogram(bins = 20) +
+  labs(
+    title = "Distribution of 1000 Bootstrapped Resamples",
+    subtitle = "From original 12 card sample with mean 7.231",
+    x = "Points",
+    y = "Samples"
+  ) +
+  geom_vline(
+    xintercept = bootstrap_mean_overall$bootstrap_mean_overall, 
+    color = "lightblue"
+  ) +
+  geom_text(
+    aes(
+      x = 7.1, 
+      label="Mean of Bootstrapped Samples", 
+      y = 51), 
+    color = "lightblue",
+    angle = 90
+  ) +
+  theme_classic()
+bootstrap_plot
 ```
+
 In one sentence, tell us why the mean of the bootstrapped resamples isn’t 
-exactly the same as the mean of the original sample.
+exactly the same as the mean of the original sample. 
 
 
 
@@ -188,6 +232,7 @@ exactly the same as the mean of the original sample.
 # the level and one for the interval. Include the sample mean (the
 # (non-bootstrapped) mean points for your sample) as a “source note” at the
 # bottom of your table.
+
 
 
 ```
